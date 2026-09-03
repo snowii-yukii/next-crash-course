@@ -1,5 +1,9 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
+import { getSimilarEventsBySlug } from "@/lib/actions/event.actions";
+import { IEvent } from "@/database/event.model"
+import BookEvent from "@/components/BookEvent"
+import EventCard from "@/components/EventCard";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
@@ -37,6 +41,8 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }>}
     const { event } = await request.json()
 
     if(!event) return notFound()
+
+    const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug)
 
     return (
         <section id="event">
@@ -84,15 +90,14 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }>}
                         />
                     </section>
                     
-                    <EventAgenda agendaItems={JSON.parse(event.agenda[0])} />
-                    
+                    <EventAgenda agendaItems={event.agenda} />
 
                     <section className="flex-col-gap-2">
                         <h2>About the Organizer</h2>
                         <p>{event.organizer}</p>
                     </section>
 
-                    <EventTags tags={JSON.parse(event.tags[0])} />
+                    <EventTags tags={event.tags} />
                 </div>
 
                 <aside className="booking">
@@ -105,8 +110,23 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }>}
                         ): (
                             <p className="text-sm">Be the first to book your spot!</p>
                         )}
+
+                        <BookEvent />
                     </div>
                 </aside>
+            </div>
+
+            <div className="flex w-full flex-col gap-4 pt-20">
+                <h2>Similar Events</h2>
+                    <div className="events">
+                        {similarEvents.length > 0 ? (
+                            similarEvents.map((similarEvent: IEvent) => (
+                                <EventCard {...similarEvent} key={similarEvent.slug} />
+                            ))
+                        ): (
+                            <p>No similar events found</p>
+                        )}
+                    </div>
             </div>
         </section>
     )

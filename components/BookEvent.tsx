@@ -35,3 +35,5 @@ const BookEvent = () => {
         
     )
 }
+
+export default BookEvent

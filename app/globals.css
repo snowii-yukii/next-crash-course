@@ -120,7 +120,7 @@
   }
 
   h1 {
-    @apply text-gradient text-6xl font-semibold max-sm:text-4xl;
+    @apply text-6xl font-semibold max-sm:text-4xl;
   }
 
   h3 {
@@ -158,7 +158,7 @@
       @apply flex flex-row items-center gap-2;
 
       p {
-        @apply text-xl font-bold italic max-sm:hidden;
+        @apply text-xl font-bold max-sm:hidden;
       }
     }
 
@@ -204,7 +204,7 @@
       @apply flex w-full flex-col lg:flex-row gap-12 items-start mt-12 max-lg:items-center;
 
       .content {
-        @apply flex flex-[2] flex-col gap-8 max-lg:w-full;
+        @apply flex flex-col gap-8;
 
         .banner {
           @apply max-h-[457px] w-full rounded-lg object-cover;
@@ -222,7 +222,7 @@
       }
 
       .booking {
-        @apply flex-1 w-full p-4 border-l border-gray-700;
+        @apply flex-1 flex flex-col p-4 border-l border-gray-700;
 
         .signup-card {
           @apply bg-dark-100 border-dark-200 card-shadow flex w-full flex-col gap-6 rounded-[10px] border px-5 py-6;
@@ -251,7 +251,7 @@
     @apply bg-dark-100 text-light-100 text-xs rounded-[6px] px-5 py-2;
   }
 
-  #book-event {
+  .book-event {
     @apply flex flex-col gap-6;
 
     form {

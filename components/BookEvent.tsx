@@ -1,23 +1,29 @@
+'use client'
+
+import { createBooking } from "@/lib/actions/booking.actions"
 import { useState } from "react"
 
-const BookEvent = () => {
+const BookEvent = ({ eventId }: { eventId: string }) => {
     const [email, setEmail] = useState('')
     const [submitted, setSubmitted] = useState(false)
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        const { success } = await createBooking({ eventId, email })
 
-        setTimeout(() => {
+        if(success) {
             setSubmitted(true)
-        }, 1000)
-    }
+        } else {
+            console.error('Error creating booking: ')
+        }
+    } 
 
     return (
         <div className="book-event">
             {submitted ? (
             <p className="text-sm">Thanks for signing up!</p>
         ): (
-            <form onSubmit={handleSubmit}>
+            <form className="form" onSubmit={handleSubmit}>
                 <div>
                     <label htmlFor="email">Email Address</label>
                     <input

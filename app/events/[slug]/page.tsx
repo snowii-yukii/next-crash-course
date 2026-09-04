@@ -1,11 +1,9 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
-import { getSimilarEventsBySlug } from "@/lib/actions/event.actions";
-import { IEvent } from "@/database/event.model"
+import { getEventBySlug, getSimilarEventsBySlug } from "@/lib/actions/event.actions";
 import BookEvent from "@/components/BookEvent"
 import EventCard from "@/components/EventCard";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
+import { cacheLife } from "next/cache";
 
 const EventDetailItem = ({ icon, alt, label }: { icon: string; alt: string; label: string;}) => (
     <div className="flex-row-gap-2 items-center">
@@ -33,19 +31,18 @@ const EventTags = ({ tags }: { tags: string[] }) => (
     </div>
 )
 
-const bookings = 10
-
 const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }>}) => {
+    'use cache'
+    cacheLife('hours')
     const { slug } = await params
-    const request = await fetch(`${BASE_URL}/api/events/${slug}`)
-    const { event } = await request.json()
+    const event = await getEventBySlug(slug)
 
     if(!event) return notFound()
 
-    const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug)
+    const similarEvents = await getSimilarEventsBySlug(slug)
 
     return (
-        <section id="event">
+        <section id="event" className="flex flex-col px-40">
             <div className="header">
                 <h1>Event Description</h1>
                 <p>{event.description}</p>
@@ -53,7 +50,7 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }>}
 
             <div className="details">
                 <div className="content">
-                    <Image src={event.image} alt={event.name} width={800} height={800} />
+                    <Image src={event.image} alt={event.title} width={800} height={500} className="w-full h-auto"/>
 
                     <section className="flex-col-gap-2">
                         <h2>Overview</h2>
@@ -103,15 +100,8 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }>}
                 <aside className="booking">
                     <div className="signup-card">
                         <h2>Book Your Spot</h2>
-                        {bookings > 0 ? (
-                            <p className="text-sm">
-                                Join {bookings} people who have already booked their spot!
-                            </p>
-                        ): (
-                            <p className="text-sm">Be the first to book your spot!</p>
-                        )}
 
-                        <BookEvent />
+                        <BookEvent eventId={event._id} />
                     </div>
                 </aside>
             </div>
@@ -120,7 +110,7 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }>}
                 <h2>Similar Events</h2>
                     <div className="events">
                         {similarEvents.length > 0 ? (
-                            similarEvents.map((similarEvent: IEvent) => (
+                            similarEvents.map((similarEvent) => (
                                 <EventCard {...similarEvent} key={similarEvent.slug} />
                             ))
                         ): (

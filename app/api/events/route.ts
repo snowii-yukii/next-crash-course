@@ -2,6 +2,7 @@ import connectDB from "@/lib/mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import Event from "@/database/event.model"
 import { v2 as cloudinary } from "cloudinary";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
     try {
@@ -9,20 +10,21 @@ export async function POST(req: NextRequest) {
 
         const formData = await req.formData()
 
-        let event;
-
-        try {
-            event = Object.fromEntries(formData.entries())
-        } catch (e) {
-            return NextResponse.json({ message: 'Invalid JSON data format'}, { status: 400})
-        }
+        const event = Object.fromEntries(formData.entries())
         
         const file = formData.get('image') as File
 
         if(!file) return NextResponse.json({ message: 'Image file is required'}, { status: 400 })
 
-        let tags = JSON.parse(formData.get('tags') as string)
-        let agenda = JSON.parse(formData.get('agenda') as string)
+        let tags: string[]
+        let agenda: string[]
+
+        try {
+            tags = JSON.parse(formData.get('tags') as string)
+            agenda = JSON.parse(formData.get('agenda') as string)
+        } catch {
+            return NextResponse.json({ message: 'Invalid tags or agenda format — expected JSON arrays'}, { status: 400 })
+        }
 
         const arrayBuffer = await file.arrayBuffer()
         const buffer = Buffer.from(arrayBuffer)
@@ -37,12 +39,14 @@ export async function POST(req: NextRequest) {
 
         event.image = (uploadResult as { secure_url: string}).secure_url
         
-        const createdEvent = await Event.create({...event, tags: tags, agenda: agenda})
+        const createdEvent = await Event.create({...event, tags, agenda})
+
+        revalidatePath('/')
 
         return NextResponse.json({ message: 'Event created successfully', event: createdEvent }, { status: 201 })
     } catch (e) {
         console.error(e)
-        return NextResponse.json({ message: 'Event Creation Failed', error: e instanceof Error ? e.message : 'Unknown error' })
+        return NextResponse.json({ message: 'Event Creation Failed', error: e instanceof Error ? e.message : 'Unknown error' }, { status: 500 })
     }
 }
 

@@ -9,15 +9,15 @@ const Navbar = () => {
                     <Image
                         src="/icons/logo.png"
                         alt="logo"
-                        width={42}
-                        height={42}
+                        width={32}
+                        height={32}
                     />
                     <p>DevEvent</p>
                 </Link>
 
                 <ul>
                     <Link href="/">Home</Link>
-                    <Link href="/">Event</Link>
+                    <Link href="/events">Event</Link>
                     <Link href="/">Create Event</Link>
                 </ul>
             </nav>

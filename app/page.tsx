@@ -13,7 +13,7 @@ const Page = async () => {
   const { events } = await response.json()
 
   return (
-    <section className="mt-5 p-5">
+    <section className="mt-5 py-10 px-40">
       <h1 className="text-center">The Hub for Every Dev <br /> Even You Can't Miss</h1>
       <p className="text-center mt-5">Hackathons, Meetups, and Conferences, All in one Place</p>
     
